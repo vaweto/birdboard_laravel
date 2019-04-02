@@ -6,7 +6,7 @@ use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
-class ProjectsTest extends TestCase
+class ManageProjectsTest extends TestCase
 {
     use WithFaker, RefreshDatabase;
 
@@ -23,6 +23,8 @@ class ProjectsTest extends TestCase
             'description' => $this->faker->text,
         ];
 
+        $this->get('/projects/create')->assertStatus(200);
+
         $this->post('/projects',$attributes)->assertRedirect('/projects');
 
         $this->assertDatabaseHas('projects',$attributes);
@@ -31,16 +33,30 @@ class ProjectsTest extends TestCase
     }
 
     /** @test */
-    public function a_user_can_view_a_project()
+    public function a_user_can_view_their_project()
     {
+        $this->be(factory('App\User')->create());
         $this->withoutExceptionHandling();
 
-        $project = factory('App\Project')->create();
+        $project = factory('App\Project')->create(['owner_id' => auth()->id()]);
 
         $this->get($project->path())
             ->assertSee($project->title)
             ->assertSee($project->description);
 
+    }
+
+    /** @test */
+    public function an_authitincated_user_cannot_see_other_user_projects()
+    {
+
+        $this->be(factory('App\User')->create());
+
+        $other_user = factory('App\User')->create();
+
+        $project = factory('App\Project')->create(['owner_id' => $other_user->id]);
+
+        $this->get($project->path())->assertStatus(403);
     }
 
     /** @test */
@@ -66,5 +82,26 @@ class ProjectsTest extends TestCase
     {
         $attributes = factory('App\Project')->raw();
         $this->post('/projects',$attributes)->assertRedirect('login');
+    }
+
+    /** @test */
+    public function guest_may_not_view_projects()
+    {
+        $this->get('/projects')->assertRedirect('login');
+    }
+
+    /** @test */
+    public function guest_may_not_view_project()
+    {
+        $project = factory('App\Project')->create();
+
+        $this->get($project->path())->assertRedirect('login');
+    }
+
+    /** @test */
+    public function guest_may_not_view_create_project_page()
+    {
+
+        $this->get('/projects/create')->assertRedirect('login');
     }
 }
