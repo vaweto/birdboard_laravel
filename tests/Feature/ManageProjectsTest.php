@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Project;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -25,7 +26,11 @@ class ManageProjectsTest extends TestCase
 
         $this->get('/projects/create')->assertStatus(200);
 
-        $this->post('/projects',$attributes)->assertRedirect('/projects');
+        $response = $this->post('/projects',$attributes);
+
+        $project = Project::where($attributes)->first();
+
+
 
         $this->assertDatabaseHas('projects',$attributes);
 
