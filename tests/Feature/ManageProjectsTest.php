@@ -22,6 +22,7 @@ class ManageProjectsTest extends TestCase
         $attributes = [
             'title' => $this->faker->sentence,
             'description' => $this->faker->text,
+            'notes' => 'general notes'
         ];
 
         $this->get('/projects/create')->assertStatus(200);
@@ -30,11 +31,30 @@ class ManageProjectsTest extends TestCase
 
         $project = Project::where($attributes)->first();
 
+        $response->assertRedirect($project->path());
 
 
         $this->assertDatabaseHas('projects',$attributes);
 
-        $this->get('/projects')->assertSee($attributes['title']);
+        $this->get($project->path())
+            ->assertSee($attributes['title'])
+            ->assertSee($attributes['description'])
+            ->assertSee($attributes['notes']);
+    }
+
+    /** @test */
+    public function a_user_can_update_their_project()
+    {
+        $this->signIn();
+        $this->withoutExceptionHandling();
+
+        $project = factory('App\Project')->create(['owner_id' => auth()->id()]);
+
+        $this->patch($project->path(),[
+           'notes' => 'changed'
+        ])->assertRedirect($project->path());
+
+        $this->assertDatabaseHas('projects',['notes' => 'changed']);
     }
 
     /** @test */
@@ -62,6 +82,17 @@ class ManageProjectsTest extends TestCase
         $project = factory('App\Project')->create(['owner_id' => $other_user->id]);
 
         $this->get($project->path())->assertStatus(403);
+    }
+
+    /** @test */
+    public function an_authitincated_user_cannot_update_other_user_projects()
+    {
+
+        $this->signIn();
+
+        $project = factory('App\Project')->create();
+
+        $this->patch($project->path(),[])->assertStatus(403);
     }
 
     /** @test */

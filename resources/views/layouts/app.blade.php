@@ -18,21 +18,21 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-
 </head>
-<body class="bg-grey-light">
-    <div id="app">
-        <nav class="bg-white">
-            <div class="container mx-auto">
-                <div class="flex justify-between items-center py-2">
-                    <a class="navbar-brand" href="{{ url('/') }}">
-                        {{ config('app.name', 'Laravel') }}
+<body class="bg-grey-lighter">
+<div id="app">
+    <nav class="bg-white section">
+        <div class="container mx-auto">
+            <div class="flex justify-between items-center py-1">
+                <h1>
+                    <a class="navbar-brand" href="{{ url('/projects') }}">
+                        <img src="/images/logo.svg" alt="Birdboard" class="relative" style="top: 2px">
                     </a>
+                </h1>
 
-
-                    <div>
+                <div>
                     <!-- Right Side Of Navbar -->
-                        <ul class="navbar-nav ml-auto">
+                    <ul class="navbar-nav ml-auto">
                         <!-- Authentication Links -->
                         @guest
                             <li class="nav-item">
@@ -52,7 +52,7 @@
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                     <a class="dropdown-item" href="{{ route('logout') }}"
                                        onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
+                                                         document.getElementById('logout-form').submit();">
                                         {{ __('Logout') }}
                                     </a>
 
@@ -64,13 +64,13 @@
                         @endguest
                     </ul>
                 </div>
-                </div>
             </div>
-        </nav>
+        </div>
+    </nav>
 
-        <main class="container mx-auto py-4">
-            @yield('content')
-        </main>
-    </div>
+    <main class="container mx-auto py-6 section">
+        @yield('content')
+    </main>
+</div>
 </body>
 </html>
