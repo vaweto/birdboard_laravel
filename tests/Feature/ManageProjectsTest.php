@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Project;
+use Facades\Tests\Setup\ProjectFactory;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -15,8 +16,6 @@ class ManageProjectsTest extends TestCase
     /** @test */
     public function a_user_can_create_a_project()
     {
-        $this->withoutExceptionHandling();
-
         $this->signIn();
 
         $attributes = [
@@ -45,14 +44,14 @@ class ManageProjectsTest extends TestCase
     /** @test */
     public function a_user_can_update_their_project()
     {
-        $this->signIn();
-        $this->withoutExceptionHandling();
 
-        $project = factory('App\Project')->create(['owner_id' => auth()->id()]);
+        $project = ProjectFactory::create();
 
-        $this->patch($project->path(),[
-           'notes' => 'changed'
-        ])->assertRedirect($project->path());
+        $this->actingAs($project->owner)
+            ->patch($project->path(),[
+               'notes' => 'changed'
+            ])
+            ->assertRedirect($project->path());
 
         $this->assertDatabaseHas('projects',['notes' => 'changed']);
     }
@@ -60,28 +59,25 @@ class ManageProjectsTest extends TestCase
     /** @test */
     public function a_user_can_view_their_project()
     {
-        $this->signIn();
-        $this->withoutExceptionHandling();
+        $project = ProjectFactory::create();
 
-        $project = factory('App\Project')->create(['owner_id' => auth()->id()]);
-
-        $this->get($project->path())
-            ->assertSee($project->title)
-            ->assertSee($project->description);
+        $this->actingAs($project->owner)
+             ->get($project->path())
+             ->assertSee($project->title)
+             ->assertSee($project->description);
 
     }
 
     /** @test */
     public function an_authitincated_user_cannot_see_other_user_projects()
     {
-
-        $this->signIn();
-
         $other_user = factory('App\User')->create();
 
-        $project = factory('App\Project')->create(['owner_id' => $other_user->id]);
+        $project = ProjectFactory::create();
 
-        $this->get($project->path())->assertStatus(403);
+        $this->actingAs($other_user)
+            ->get($project->path())
+            ->assertStatus(403);
     }
 
     /** @test */
