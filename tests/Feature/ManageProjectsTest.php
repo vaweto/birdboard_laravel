@@ -48,12 +48,30 @@ class ManageProjectsTest extends TestCase
         $project = ProjectFactory::create();
 
         $this->actingAs($project->owner)
-            ->patch($project->path(),[
-               'notes' => 'changed'
+            ->patch($project->path(), $attributes = [
+               'notes' => 'changed',
+                'title' => 'Changed',
+                'description' => 'Changed',
             ])
             ->assertRedirect($project->path());
 
-        $this->assertDatabaseHas('projects',['notes' => 'changed']);
+        $this->get($project->path().'/edit')->assertOk();
+
+        $this->assertDatabaseHas('projects',$attributes);
+    }
+
+    /** @test */
+    public function a_user_can_update_only_the_notes()
+    {
+        $project = ProjectFactory::create();
+
+        $this->actingAs($project->owner)
+            ->patch($project->path(), $atributes = [
+                'notes' => 'changed'
+            ])
+            ->assertRedirect($project->path());
+
+        $this->assertDatabaseHas('projects',$atributes);
     }
 
     /** @test */
@@ -128,6 +146,14 @@ class ManageProjectsTest extends TestCase
         $project = factory('App\Project')->create();
 
         $this->get($project->path())->assertRedirect('login');
+    }
+
+    /** @test */
+    public function guest_may_not_editproject()
+    {
+        $project = factory('App\Project')->create();
+
+        $this->get($project->path().'/edit')->assertRedirect('login');
     }
 
     /** @test */
