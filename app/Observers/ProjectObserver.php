@@ -10,31 +10,31 @@ class ProjectObserver
     /**
      * Handle the project "created" event.
      *
-     * @param  \App\Project  $project
+     * @param  \App\Project $project
      * @return void
      */
     public function created(Project $project)
     {
         //
-        $this->recordActivity($project,'created');
+        $project->recordActivity('created');
     }
 
     /**
      * Handle the project "updated" event.
      *
-     * @param  \App\Project  $project
+     * @param  \App\Project $project
      * @return void
      */
     public function updated(Project $project)
     {
         //
-       $this->recordActivity($project,'updated');
+        $project->recordActivity('updated');
     }
 
     /**
      * Handle the project "deleted" event.
      *
-     * @param  \App\Project  $project
+     * @param  \App\Project $project
      * @return void
      */
     public function deleted(Project $project)
@@ -45,7 +45,7 @@ class ProjectObserver
     /**
      * Handle the project "restored" event.
      *
-     * @param  \App\Project  $project
+     * @param  \App\Project $project
      * @return void
      */
     public function restored(Project $project)
@@ -56,7 +56,7 @@ class ProjectObserver
     /**
      * Handle the project "force deleted" event.
      *
-     * @param  \App\Project  $project
+     * @param  \App\Project $project
      * @return void
      */
     public function forceDeleted(Project $project)
@@ -64,11 +64,4 @@ class ProjectObserver
         //
     }
 
-    protected function recordActivity(Project $project, $description = '')
-    {
-        Activity::create([
-            'project_id' => $project->id,
-            'description' => $description
-        ]);
-    }
 }
