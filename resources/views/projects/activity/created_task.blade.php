@@ -1,0 +1,1 @@
+You create "{{ $activity->subject->body }}"
