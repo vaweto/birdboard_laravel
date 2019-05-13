@@ -18,6 +18,11 @@ class TaskObserver
         $task->recordActivity('created_task');
     }
 
+    public function updating(Task $task)
+    {
+        $task->old = $task->getOriginal();
+    }
+
     /**
      * Handle the task "deleted" event.
      *
