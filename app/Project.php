@@ -14,7 +14,7 @@ class Project extends Model
 
     protected $guarded = [];
 
-    protected $recordableActivity = ['created', 'deleted', 'updated'];
+    protected static $recordableEvents = ['created', 'updated'];
 
     public function path()
     {
@@ -41,6 +41,16 @@ class Project extends Model
     public function activity()
     {
         return $this->hasMany(Activity::class)->latest();
+    }
+
+    public function invite(User $user)
+    {
+        return $this->members()->attach($user);
+    }
+
+    public function members()
+    {
+        return $this->belongsToMany(User::class, 'project_members')->withTimestamps();
     }
 
 

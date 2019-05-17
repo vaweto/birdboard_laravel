@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Project;
+use App\User;
 use Facades\Tests\Setup\ProjectFactory;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -61,6 +62,36 @@ class ManageProjectsTest extends TestCase
     }
 
     /** @test */
+    public function guest_cannot_delete_their_project()
+    {
+
+
+        $project = ProjectFactory::create();
+
+        $this->delete($project->path())
+            ->assertRedirect('/login');
+
+        $this->signIn();
+
+        $this->delete($project->path())->assertStatus(403);
+
+    }
+
+    /** @test */
+    public function a_user_can_delete_their_project()
+    {
+        $this->withoutExceptionHandling();
+
+        $project = ProjectFactory::create();
+
+        $this->actingAs($project->owner)
+            ->delete($project->path())
+            ->assertRedirect('/projects');
+
+        $this->assertDatabaseMissing('projects',['id' => $project->id]);
+    }
+
+    /** @test */
     public function a_user_can_update_only_the_notes()
     {
         $project = ProjectFactory::create();
@@ -83,6 +114,20 @@ class ManageProjectsTest extends TestCase
              ->get($project->path())
              ->assertSee($project->title)
              ->assertSee($project->description);
+
+    }
+
+    /** @test */
+    public function a_user_can_see_all_projects_they_have_invited_to_on_their_dashboard()
+    {
+        $project = ProjectFactory::create();
+
+        $project->invite($newUser = factory(User::class)->create());
+
+        $this->actingAs($newUser)
+            ->get('/projects')
+            ->assertSee($project->title)
+            ->assertSee($project->description);
 
     }
 
