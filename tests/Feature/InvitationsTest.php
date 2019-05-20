@@ -16,8 +16,18 @@ class InvitationsTest extends TestCase
     /** @test */
     function non_owners_may_not_invite_users()
     {
-        $this->actingAs(factory(User::class)->create())
-            ->post(ProjectFactory::create()->path() . '/invitations')
+        $project = ProjectFactory::create();
+
+        $user = factory(User::class)->create();
+
+        $this->actingAs($user)
+            ->post($project->path() . '/invitations')
+            ->assertStatus(403);
+
+        $project->invite($user);
+
+        $this->actingAs($user)
+            ->post($project->path() . '/invitations')
             ->assertStatus(403);
     }
 
@@ -48,7 +58,9 @@ class InvitationsTest extends TestCase
             ->post($project->path() . '/invitations', [
             'email' => 'not@user.com'])
             ->assertSessionHasErrors(
-                ['email' => 'must have a app account']
+                ['email' => 'must have a app account'],
+                null,
+                'invitations'
             );
 
     }

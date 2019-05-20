@@ -19,11 +19,7 @@ class ManageProjectsTest extends TestCase
     {
         $this->signIn();
 
-        $attributes = [
-            'title' => $this->faker->sentence,
-            'description' => $this->faker->text,
-            'notes' => 'general notes'
-        ];
+        $attributes = factory(Project::class)->raw(['owner_id' => auth()->id()]);
 
         $this->get('/projects/create')->assertStatus(200);
 
@@ -32,7 +28,6 @@ class ManageProjectsTest extends TestCase
         $project = Project::where($attributes)->first();
 
         $response->assertRedirect($project->path());
-
 
         $this->assertDatabaseHas('projects',$attributes);
 
@@ -74,6 +69,19 @@ class ManageProjectsTest extends TestCase
         $this->signIn();
 
         $this->delete($project->path())->assertStatus(403);
+
+    }
+
+    /** @test */
+    public function invited_members_cannot_delete_their_project()
+    {
+        $project = ProjectFactory::create();
+        $user = factory(User::class)->create();
+
+        $project->invite($user);
+
+        $this->actingAs($user)->delete($project->path())
+            ->assertStatus(403);
 
     }
 
