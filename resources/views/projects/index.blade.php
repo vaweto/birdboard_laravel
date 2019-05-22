@@ -4,7 +4,7 @@
         <header class="flex items-center mb-3 py-4">
             <div class="flex justify-between items-end w-full">
                 <h2 class="text-muted text-base font-light">My Projects</h2>
-                <a class="button" href="/projects/create">Create a project</a>
+                <a class="button" href="/projects/create" @click.prevent="$modal.show('new-project')">Create a project</a>
             </div>
         </header>
 
@@ -18,5 +18,6 @@
             @endforelse
         </main>
 
+       <new-project-modal></new-project-modal>
     @endsection
 
