@@ -58,6 +58,23 @@ class ManageProjectsTest extends TestCase
     }
 
     /** @test */
+    public function empty_tasks_does_not_be_included_as_part_of_new_project()
+    {
+        $this->signIn();
+
+        $attributes = factory(Project::class)->raw();
+
+        $attributes['tasks'] = [
+            ['body' => ''],
+        ];
+
+        $this->post('/projects',$attributes);
+
+        $this->assertCount(0,Project::first()->tasks);
+
+    }
+
+    /** @test */
     public function a_user_can_update_their_project()
     {
 

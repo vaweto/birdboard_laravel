@@ -37,10 +37,11 @@ class ProjectsController extends Controller
 
         if(request()->has('tasks')) {
             foreach (request('tasks') as $task) {
-                $project->addTask($task['body']);
+                if(!empty($task['body'])){
+                    $project->addTask($task['body']);
+                }
             }
         }
-
 
         if(request()->wantsJson()) {
             return ['message' => $project->path()];
